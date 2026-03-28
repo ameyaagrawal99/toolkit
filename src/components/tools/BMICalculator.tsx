@@ -8,14 +8,37 @@ import { Scale, Heart, Target, Activity } from "lucide-react";
 import { BigResultCard } from "@/components/ui/big-result-card";
 import { ProTip } from "@/components/ui/pro-tip";
 import { SliderInput } from "@/components/ui/slider-input";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const BMICalculator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [unit, setUnit] = useState('metric');
   const [height, setHeight] = useState({ cm: '170', ft: '5', inch: '10' });
   const [weight, setWeight] = useState({ kg: '70', lb: '154' });
   const [bmi, setBmi] = useState(0);
   const [category, setCategory] = useState('');
   const [idealWeightRange, setIdealWeightRange] = useState({ min: 0, max: 0 });
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'bmi-calculator') {
+      const p = pendingParams.params;
+      const u = p.unit ?? 'metric';
+      setUnit(u);
+      if (u === 'metric') {
+        if (p.height !== undefined) setHeight(h => ({ ...h, cm: String(p.height) }));
+        if (p.weight !== undefined) setWeight(w => ({ ...w, kg: String(p.weight) }));
+      } else {
+        if (p.height !== undefined) {
+          const totalInches = p.height;
+          const ft = Math.floor(totalInches / 12);
+          const inch = totalInches % 12;
+          setHeight(h => ({ ...h, ft: String(ft), inch: String(inch) }));
+        }
+        if (p.weight !== undefined) setWeight(w => ({ ...w, lb: String(p.weight) }));
+      }
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   useEffect(() => {
     calculateBMI();

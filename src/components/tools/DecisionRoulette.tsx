@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { X, Plus, RotateCcw, Sparkles, Save, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAgentContext } from '@/contexts/AgentContext';
 
 interface Option {
   id: string;
@@ -64,6 +65,7 @@ const TEMPLATES = [
 
 export const DecisionRoulette = () => {
   const { toast } = useToast();
+  const { pendingParams, consumeParams } = useAgentContext();
   const [options, setOptions] = useState<Option[]>([
     { id: '1', text: 'Option 1', weight: 3, color: COLORS[0] },
     { id: '2', text: 'Option 2', weight: 3, color: COLORS[1] },
@@ -85,6 +87,22 @@ export const DecisionRoulette = () => {
     if (savedHistory) setHistory(JSON.parse(savedHistory));
     if (saved) setSavedDecisions(JSON.parse(saved));
   }, []);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'decision-roulette') {
+      const p = pendingParams.params;
+      if (p.options && Array.isArray(p.options)) {
+        const mapped: Option[] = p.options.map((opt: any, i: number) => ({
+          id: String(i + 1),
+          text: opt.text ?? `Option ${i + 1}`,
+          weight: opt.weight ?? 3,
+          color: COLORS[i % COLORS.length],
+        }));
+        setOptions(mapped);
+      }
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   const addOption = () => {
     if (!newOption.trim()) {

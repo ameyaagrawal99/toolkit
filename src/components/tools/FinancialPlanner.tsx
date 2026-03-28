@@ -9,8 +9,10 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Calculator, PiggyBank, TrendingUp, Clock } from "lucide-react";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const FinancialPlanner = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [targetAmount, setTargetAmount] = useState<number>(1000000);
   const [initialInvestment, setInitialInvestment] = useState<number>(100000);
   const [monthlyContribution, setMonthlyContribution] = useState<number>(10000);
@@ -146,12 +148,25 @@ export const FinancialPlanner = () => {
     return `${years} year${years !== 1 ? 's' : ''} and ${months} month${months !== 1 ? 's' : ''}`;
   };
 
+  useEffect(() => {
+    if (pendingParams?.toolId === 'financial-planner') {
+      const p = pendingParams.params;
+      if (p.targetAmount !== undefined) setTargetAmount(p.targetAmount);
+      if (p.initialInvestment !== undefined) setInitialInvestment(p.initialInvestment);
+      if (p.monthlyContribution !== undefined) setMonthlyContribution(p.monthlyContribution);
+      if (p.annualReturnRate !== undefined) setAnnualReturnRate(p.annualReturnRate);
+      if (p.inflationRate !== undefined) setInflationRate(p.inflationRate);
+      if (p.yearsToForecast !== undefined) setYearsToForecast(p.yearsToForecast);
+      consumeParams();
+    }
+  }, [pendingParams]);
+
   // Calculate on initial load and when inputs change
   useEffect(() => {
     calculateForecast();
   }, [
-    initialInvestment, 
-    monthlyContribution, 
+    initialInvestment,
+    monthlyContribution,
     annualReturnRate, 
     inflationRate, 
     yearsToForecast, 

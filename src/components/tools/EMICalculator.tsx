@@ -19,8 +19,10 @@ import { CashFlowAnalysis } from './emi/CashFlowAnalysis';
 import { IRRCalculator } from './emi/IRRCalculator';
 import { ExportTools } from './emi/ExportTools';
 import { FinancialModelView } from './emi/FinancialModelView';
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const EMICalculator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [principal, setPrincipal] = useState('100000');
   const [interestRate, setInterestRate] = useState('10');
   const [loanTerm, setLoanTerm] = useState('5');
@@ -33,6 +35,16 @@ export const EMICalculator = () => {
   const [showFullTable, setShowFullTable] = useState(false);
 
   const { generateAmortizationSchedule, calculateYearlyBreakdown, calculateEMI } = useEMICalculations();
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'emi-calculator') {
+      const p = pendingParams.params;
+      if (p.principal !== undefined) setPrincipal(String(p.principal));
+      if (p.interestRate !== undefined) setInterestRate(String(p.interestRate));
+      if (p.loanTerm !== undefined) setLoanTerm(String(p.loanTerm));
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   // Calculate all values
   const calculations = useMemo(() => {

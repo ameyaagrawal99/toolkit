@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 import { Copy } from "lucide-react";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const TextDiffTool = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [text1, setText1] = useState('');
   const [text2, setText2] = useState('');
   const [viewMode, setViewMode] = useState('side-by-side');
@@ -15,6 +17,15 @@ export const TextDiffTool = () => {
     right: '',
     inline: ''
   });
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'text-diff') {
+      const p = pendingParams.params;
+      if (p.text1 !== undefined) setText1(p.text1);
+      if (p.text2 !== undefined) setText2(p.text2);
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   // Function to find the differences between two texts
   const findDiff = () => {

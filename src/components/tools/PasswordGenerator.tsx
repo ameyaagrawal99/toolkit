@@ -11,8 +11,10 @@ import { BigResultCard } from "@/components/ui/big-result-card";
 import { ProTip } from "@/components/ui/pro-tip";
 import { SliderInput } from "@/components/ui/slider-input";
 import { PresetButtons } from "@/components/ui/preset-buttons";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const PasswordGenerator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [password, setPassword] = useState<string>('');
   const [passwordLength, setPasswordLength] = useState<number>(16);
   const [includeUppercase, setIncludeUppercase] = useState<boolean>(true);
@@ -56,6 +58,17 @@ export const PasswordGenerator = () => {
       if (timer) clearTimeout(timer);
     };
   }, [autoDestruct, password]);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'password-generator') {
+      const p = pendingParams.params;
+      if (p.length !== undefined) setPasswordLength(p.length);
+      if (p.uppercase !== undefined) setIncludeUppercase(p.uppercase);
+      if (p.numbers !== undefined) setIncludeNumbers(p.numbers);
+      if (p.symbols !== undefined) setIncludeSymbols(p.symbols);
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   const generatePassword = () => {
     const lowerChars = 'abcdefghijklmnopqrstuvwxyz';

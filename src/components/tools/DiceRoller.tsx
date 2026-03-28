@@ -1,16 +1,26 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { 
-  Dices, Coins, Dice1, Dice2, Dice3, Dice4, Dice5, Dice6 
+import {
+  Dices, Coins, Dice1, Dice2, Dice3, Dice4, Dice5, Dice6
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const DiceRoller = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [diceType, setDiceType] = useState<'coin' | 'd6' | 'd20'>('coin');
   const [result, setResult] = useState<number | null>(null);
   const [rolling, setRolling] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'dice-roller') {
+      const p = pendingParams.params;
+      if (p.diceType !== undefined) setDiceType(p.diceType);
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   const rollDice = () => {
     if (rolling) return;

@@ -7,12 +7,23 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { Copy, Check, Send } from 'lucide-react';
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const WhatsAppLinkGenerator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const [generatedLink, setGeneratedLink] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'whatsapp-link') {
+      const p = pendingParams.params;
+      if (p.phoneNumber !== undefined) setPhoneNumber(p.phoneNumber);
+      if (p.message !== undefined) setMessage(p.message);
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   useEffect(() => {
     // Generate link whenever inputs change

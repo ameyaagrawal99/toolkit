@@ -8,8 +8,10 @@ import { Copy, Trash2, Type, FileText, MessageSquare, AlignLeft, Lightbulb } fro
 import { BigResultCard } from "@/components/ui/big-result-card";
 import { ProTip } from "@/components/ui/pro-tip";
 import { PresetButtons } from "@/components/ui/preset-buttons";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const CharacterCounter = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [text, setText] = useState('');
   const [stats, setStats] = useState({
     chars: 0,
@@ -18,6 +20,14 @@ export const CharacterCounter = () => {
     paragraphs: 0
   });
   const [charLimit, setCharLimit] = useState(280);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'character-counter') {
+      const p = pendingParams.params;
+      if (p.text !== undefined) setText(p.text);
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   useEffect(() => {
     const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
