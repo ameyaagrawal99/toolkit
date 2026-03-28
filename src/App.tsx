@@ -8,10 +8,12 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import EmbedTool from "./pages/EmbedTool";
 import EmbedIndex from "./pages/EmbedIndex";
+import { AgentProvider } from "./contexts/AgentContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  <AgentProvider>
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="toolbox-theme">
       <TooltipProvider>
@@ -29,6 +31,7 @@ const App = () => (
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
+  </AgentProvider>
 );
 
 export default App;

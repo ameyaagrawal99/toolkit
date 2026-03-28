@@ -10,6 +10,7 @@ import { BigResultCard } from '@/components/ui/big-result-card';
 import { ProTip } from '@/components/ui/pro-tip';
 import { PresetButtons } from '@/components/ui/preset-buttons';
 import { Label } from '@/components/ui/label';
+import { useAgentContext } from '@/contexts/AgentContext';
 
 interface YearlyBreakdown {
   year: number;
@@ -54,22 +55,44 @@ const formatLargeNumber = (value: number): string => {
 };
 
 export const InterestCalculator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   // Simple Interest State
   const [siPrincipal, setSiPrincipal] = useState<number>(100000);
   const [siRate, setSiRate] = useState<number>(10);
   const [siTime, setSiTime] = useState<number>(5);
   const [siTimeUnit, setSiTimeUnit] = useState<string>("years");
-  
+  const [activeTab, setActiveTab] = useState<string>("simple");
+
   // Compound Interest State
   const [ciPrincipal, setCiPrincipal] = useState<number>(100000);
   const [ciRate, setCiRate] = useState<number>(10);
   const [ciTime, setCiTime] = useState<number>(5);
   const [ciFrequency, setCiFrequency] = useState<string>("12");
-  
+
   // Results
   const [siResult, setSiResult] = useState({ interest: 0, total: 0 });
   const [ciResult, setCiResult] = useState({ interest: 0, total: 0, extraEarnings: 0 });
   const [yearlyData, setYearlyData] = useState<YearlyBreakdown[]>([]);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'interest-calculator') {
+      const p = pendingParams.params;
+      const isCompound = p.type === 'compound';
+      if (isCompound) {
+        if (p.principal !== undefined) setCiPrincipal(p.principal);
+        if (p.rate !== undefined) setCiRate(p.rate);
+        if (p.time !== undefined) setCiTime(p.time);
+        if (p.frequency !== undefined) setCiFrequency(p.frequency);
+        setActiveTab('compound');
+      } else {
+        if (p.principal !== undefined) setSiPrincipal(p.principal);
+        if (p.rate !== undefined) setSiRate(p.rate);
+        if (p.time !== undefined) setSiTime(p.time);
+        setActiveTab('simple');
+      }
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   // Calculate Simple Interest
   useEffect(() => {
@@ -164,7 +187,7 @@ export const InterestCalculator = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Tabs defaultValue="simple" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6 h-14 rounded-2xl p-1.5 bg-secondary/50 backdrop-blur-sm">
           <TabsTrigger 
             value="simple" 

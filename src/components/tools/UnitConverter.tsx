@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 import { Copy, ArrowLeftRight } from "lucide-react";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const UnitConverter = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [category, setCategory] = useState('length');
   const [fromUnit, setFromUnit] = useState('meter');
   const [toUnit, setToUnit] = useState('feet');
@@ -403,6 +405,17 @@ export const UnitConverter = () => {
       description: "Result has been copied to your clipboard."
     });
   };
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'unit-converter') {
+      const p = pendingParams.params;
+      if (p.category !== undefined) setCategory(p.category);
+      if (p.fromUnit !== undefined) setFromUnit(p.fromUnit);
+      if (p.toUnit !== undefined) setToUnit(p.toUnit);
+      if (p.value !== undefined) setFromValue(String(p.value));
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   // Update conversion when values change
   useEffect(() => {

@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const ColorConverter = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [hex, setHex] = useState('#3498db');
   const [rgb, setRgb] = useState({ r: 52, g: 152, b: 219 });
   const [hsl, setHsl] = useState({ h: 204, s: 70, l: 53 });
@@ -97,6 +99,17 @@ export const ColorConverter = () => {
       b: Math.round(b * 255)
     };
   };
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'color-converter') {
+      const p = pendingParams.params;
+      if (p.hex !== undefined) {
+        const h = p.hex.startsWith('#') ? p.hex : `#${p.hex}`;
+        setHex(h);
+      }
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   // Update RGB and HSL when HEX changes
   useEffect(() => {

@@ -6,8 +6,10 @@ import { toast } from "@/components/ui/use-toast";
 import { Calendar, Clock, Lightbulb } from "lucide-react";
 import { BigResultCard } from "@/components/ui/big-result-card";
 import { ProTip } from "@/components/ui/pro-tip";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const DateDiffCalculator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [difference, setDifference] = useState({
@@ -16,6 +18,15 @@ export const DateDiffCalculator = () => {
     years: 0,
     totalDays: 0
   });
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'date-diff') {
+      const p = pendingParams.params;
+      if (p.startDate !== undefined) setStartDate(p.startDate);
+      if (p.endDate !== undefined) setEndDate(p.endDate);
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   useEffect(() => {
     if (startDate && endDate) {

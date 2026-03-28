@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { AIAgent } from '@/components/AIAgent';
+import { APIKeySettings } from '@/components/APIKeySettings';
+import { useAgentContext } from '@/contexts/AgentContext';
 import { CharacterCounter } from '@/components/tools/CharacterCounter';
 import { ColorConverter } from '@/components/tools/ColorConverter';
 import { AgeCalculator } from '@/components/tools/AgeCalculator';
@@ -101,12 +104,20 @@ const InstallPWAButton = () => {
 
 const Index = () => {
   const { toast } = useToast();
+  const { pendingParams } = useAgentContext();
   const [currentTool, setCurrentTool] = useState("character-counter");
   const [searchQuery, setSearchQuery] = useState("");
   const [toolsUsed, setToolsUsed] = useState(0);
   const [navOpen, setNavOpen] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const isMobile = useIsMobile();
+
+  // Auto-navigate when AI agent triggers a tool
+  useEffect(() => {
+    if (pendingParams?.toolId) {
+      setCurrentTool(pendingParams.toolId);
+    }
+  }, [pendingParams]);
 
   useEffect(() => {
     const checkStandalone = () => {
@@ -300,6 +311,8 @@ const Index = () => {
               </div>
             )}
             <InstallPWAButton />
+            <APIKeySettings />
+            <AIAgent onNavigate={setCurrentTool} />
             <ThemeToggle />
             {isMobile && (
               <Sheet open={navOpen} onOpenChange={setNavOpen}>

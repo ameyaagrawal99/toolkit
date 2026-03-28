@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { IndianRupee, Copy, Check, Lightbulb } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -9,10 +9,20 @@ import { ProTip } from "@/components/ui/pro-tip";
 import { SliderInput } from "@/components/ui/slider-input";
 import { PresetButtons } from "@/components/ui/preset-buttons";
 import { Button } from "@/components/ui/button";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export function NumberToIndianFormat() {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [number, setNumber] = useState<number>(1000000);
   const [copied, setCopied] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'indian-number-format') {
+      const p = pendingParams.params;
+      if (p.number !== undefined) setNumber(p.number);
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   const result = formatIndianNumber(number);
   const inWords = formatNumberToIndianWords(number);

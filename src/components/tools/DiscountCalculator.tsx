@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Percent, IndianRupee, Plus, Trash2, Lightbulb, Tag, ShoppingBag } from 
 import { SliderInput } from '@/components/ui/slider-input';
 import { BigResultCard } from '@/components/ui/big-result-card';
 import { ProTip } from '@/components/ui/pro-tip';
+import { useAgentContext } from '@/contexts/AgentContext';
 
 interface Discount {
   id: number;
@@ -25,11 +26,25 @@ const pricePresets = [
 ];
 
 export const DiscountCalculator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [originalPrice, setOriginalPrice] = useState<number>(1000);
   const [discounts, setDiscounts] = useState<Discount[]>([
     { id: 1, type: 'percentage', value: 20 }
   ]);
   const [nextId, setNextId] = useState(2);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'discount-calculator') {
+      const p = pendingParams.params;
+      if (p.originalPrice !== undefined) setOriginalPrice(p.originalPrice);
+      if (p.discounts && Array.isArray(p.discounts)) {
+        let id = 1;
+        setDiscounts(p.discounts.map((d: any) => ({ id: id++, type: d.type ?? 'percentage', value: d.value ?? 0 })));
+        setNextId(id);
+      }
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   const addDiscount = () => {
     setDiscounts([...discounts, { id: nextId, type: 'percentage', value: 10 }]);

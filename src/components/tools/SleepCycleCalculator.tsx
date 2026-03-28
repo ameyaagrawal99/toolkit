@@ -8,8 +8,10 @@ import { toast } from "@/components/ui/use-toast";
 import { BigResultCard } from "@/components/ui/big-result-card";
 import { ProTip } from "@/components/ui/pro-tip";
 import { SliderInput } from "@/components/ui/slider-input";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const SleepCycleCalculator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [calculationType, setCalculationType] = useState('bedtime');
   const [wakeUpTime, setWakeUpTime] = useState<Date | null>(null);
   const [bedTime, setBedTime] = useState<Date | null>(null);
@@ -23,9 +25,27 @@ export const SleepCycleCalculator = () => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-    
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'sleep-calculator') {
+      const p = pendingParams.params;
+      if (p.calculationType !== undefined) setCalculationType(p.calculationType);
+      if (p.fallAsleepMinutes !== undefined) setFallAsleepTime(p.fallAsleepMinutes);
+      if (p.wakeUpTime) {
+        const [h, m] = p.wakeUpTime.split(':').map(Number);
+        const d = new Date(); d.setHours(h, m, 0, 0);
+        setWakeUpTime(d);
+      }
+      if (p.bedTime) {
+        const [h, m] = p.bedTime.split(':').map(Number);
+        const d = new Date(); d.setHours(h, m, 0, 0);
+        setBedTime(d);
+      }
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   const calculateSleepCycles = () => {
     const cycles: Date[] = [];

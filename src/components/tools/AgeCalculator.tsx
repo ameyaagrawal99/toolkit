@@ -6,13 +6,23 @@ import { Calendar, Star, Cake, Clock } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { BigResultCard } from "@/components/ui/big-result-card";
 import { ProTip } from "@/components/ui/pro-tip";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 export const AgeCalculator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [birthdate, setBirthdate] = useState('');
   const [age, setAge] = useState({ years: 0, months: 0, days: 0 });
   const [nextBirthday, setNextBirthday] = useState({ days: 0 });
   const [zodiacSign, setZodiacSign] = useState('');
   const [dayOfWeek, setDayOfWeek] = useState('');
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'age-calculator') {
+      const p = pendingParams.params;
+      if (p.birthdate !== undefined) setBirthdate(p.birthdate);
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   useEffect(() => {
     if (birthdate) {

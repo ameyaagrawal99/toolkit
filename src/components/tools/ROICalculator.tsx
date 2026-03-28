@@ -6,6 +6,7 @@ import { formatIndianRupees, formatNumberToIndianWords } from "@/utils/formatNum
 import { SliderInput } from '@/components/ui/slider-input';
 import { BigResultCard } from '@/components/ui/big-result-card';
 import { ProTip } from '@/components/ui/pro-tip';
+import { useAgentContext } from '@/contexts/AgentContext';
 
 const investmentPresets = [
   { label: '10K', value: 10000 },
@@ -31,6 +32,7 @@ const formatLargeNumber = (value: number): string => {
 };
 
 export const ROICalculator = () => {
+  const { pendingParams, consumeParams } = useAgentContext();
   const [calculationType, setCalculationType] = useState('simple');
   const [initialInvestment, setInitialInvestment] = useState(100000);
   const [finalValue, setFinalValue] = useState(120000);
@@ -39,6 +41,20 @@ export const ROICalculator = () => {
   const [annualizedRoi, setAnnualizedRoi] = useState(0);
   const [gain, setGain] = useState(0);
   const [isProfit, setIsProfit] = useState(true);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'roi-calculator') {
+      const p = pendingParams.params;
+      if (p.initialInvestment !== undefined) setInitialInvestment(p.initialInvestment);
+      if (p.timePeriod !== undefined) setTimePeriod(p.timePeriod);
+      if (p.growthRate !== undefined) {
+        const fv = p.initialInvestment * Math.pow(1 + p.growthRate / 100, p.timePeriod);
+        setFinalValue(Math.round(fv));
+        setCalculationType('annualized');
+      }
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   useEffect(() => {
     calculateROI();

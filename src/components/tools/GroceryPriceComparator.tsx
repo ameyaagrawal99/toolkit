@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAgentContext } from '@/contexts/AgentContext';
 
 interface Product {
   id: number;
@@ -33,6 +34,7 @@ const STORAGE_KEY = 'grocery-comparison-history';
 
 export const GroceryPriceComparator = () => {
   const { toast } = useToast();
+  const { pendingParams, consumeParams } = useAgentContext();
   const [products, setProducts] = useState<Product[]>([
     { id: 1, name: 'Pack 1', weight: 500, weightUnit: 'g', mrp: 120, currentPrice: 100 },
     { id: 2, name: 'Pack 2', weight: 1000, weightUnit: 'g', mrp: 200, currentPrice: 180 },
@@ -55,6 +57,26 @@ export const GroceryPriceComparator = () => {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (pendingParams?.toolId === 'grocery-comparator') {
+      const p = pendingParams.params;
+      if (p.products && Array.isArray(p.products)) {
+        let idCounter = 1;
+        const mapped: Product[] = p.products.map((item: any) => ({
+          id: idCounter++,
+          name: item.name ?? `Product ${idCounter}`,
+          weight: item.weight ?? 1,
+          weightUnit: item.weightUnit ?? 'g',
+          mrp: item.mrp ?? item.price ?? 0,
+          currentPrice: item.price ?? 0,
+        }));
+        setProducts(mapped);
+        setNextId(idCounter);
+      }
+      consumeParams();
+    }
+  }, [pendingParams]);
 
   // Show insights when we have valid comparison data
   useEffect(() => {
