@@ -31,6 +31,7 @@ const TOOL_NAMES: Record<string, string> = {
   'grocery-comparator': 'Grocery Price Comparator',
   'discount-calculator': 'Discount Calculator',
   'emi-calculator': 'EMI Calculator',
+  'plant-health-detector': 'Plant Health Detector',
 };
 
 const OPENAI_TOOLS = [
@@ -379,6 +380,18 @@ const OPENAI_TOOLS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'open_plant_health_detector',
+      description: 'Open the Plant Health Detector tool to scan a plant with the camera and analyze its health using GPT-4o Vision',
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    },
+  },
 ];
 
 // Map function name → tool ID
@@ -402,6 +415,7 @@ const FUNCTION_TO_TOOL: Record<string, string> = {
   compare_grocery_prices: 'grocery-comparator',
   calculate_discount: 'discount-calculator',
   calculate_emi: 'emi-calculator',
+  open_plant_health_detector: 'plant-health-detector',
 };
 
 const EXAMPLE_PROMPTS = [

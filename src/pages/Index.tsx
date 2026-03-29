@@ -27,13 +27,14 @@ import { DiscountCalculator } from '@/components/tools/DiscountCalculator';
 import { GroceryPriceComparator } from '@/components/tools/GroceryPriceComparator';
 import { DecisionRoulette } from '@/components/tools/DecisionRoulette';
 import { InterestCalculator } from '@/components/tools/InterestCalculator';
+import { PlantHealthDetector } from '@/components/tools/PlantHealthDetector';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import MobileFAB from '@/components/MobileFAB';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import {
   Calculator, FileText, Calendar, Scale, Percent,
   Moon, ArrowRight, ArrowLeft, Key, Send, Dices,
-  Search, IndianRupee, Clock, TrendingUp, Menu, AppWindow, ShoppingCart, Target, CloudOff, Sparkles, ChevronLeft
+  Search, IndianRupee, Clock, TrendingUp, Menu, AppWindow, ShoppingCart, Target, CloudOff, Sparkles, ChevronLeft, Leaf
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -194,6 +195,14 @@ const Index = () => {
       icon: ArrowLeft,
       tools: [
         { id: "unit-converter", name: "Unit Converter", icon: ArrowLeft },
+      ]
+    },
+    {
+      category: "Fun Tools",
+      color: "category-emerald",
+      icon: Leaf,
+      tools: [
+        { id: "plant-health-detector", name: "Plant Health Detector", icon: Leaf },
       ]
     }
   ];
@@ -502,6 +511,7 @@ const Index = () => {
                   {currentTool === "grocery-comparator" && <GroceryPriceComparator />}
                   {currentTool === "decision-roulette" && <DecisionRoulette />}
                   {currentTool === "interest-calculator" && <InterestCalculator />}
+                  {currentTool === "plant-health-detector" && <PlantHealthDetector />}
                 </Suspense>
               </CardContent>
             </Card>
